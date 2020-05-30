@@ -22,8 +22,8 @@ ActiveRecord::Schema.define(version: 2020_05_30_153501) do
 
   create_table "transfers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.bigint "account_id", null: false
-    t.string "destination_account_id"
-    t.string "amount"
+    t.integer "destination_account_id"
+    t.integer "amount"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["account_id"], name: "index_transfers_on_account_id"

@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :transfer do
-    account nil
-    destination_account_id "MyString"
-    amount "MyString"
+    association :account, factory: :account
+    destination_account_id 2
+    amount 10000
   end
 end
