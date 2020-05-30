@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :account do
-    name "MyString"
-    balance "MyString"
+    name "Test"
+    balance 10000
   end
 end
