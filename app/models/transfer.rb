@@ -4,5 +4,5 @@ class Transfer < ApplicationRecord
 
   validates_with DestinationAccountExistsValidator
   validates_with SourceAccountHasBalanceValidation
-  
+  validates_with SourceAccountDiffDestinationAccountValidator
 end

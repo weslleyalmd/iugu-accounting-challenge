@@ -53,7 +53,6 @@ RSpec.describe "/transfers", type: :request do
   describe 'POST /transfers' do
     # valid payload
     let(:valid_attributes) { { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 10000 } } }
-    let(:transfer_high_amount) { { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 99999 } } }
     let(:valid_auth) { { authorization: "Token token=#{source_account.access_token}" } }
     let(:invalid_auth) { { authorization: "Token token=invalid_auth" } }
 
@@ -72,7 +71,8 @@ RSpec.describe "/transfers", type: :request do
     end
 
     context 'when the request is valid but source account does not have enough balance' do
-      before { post '/transfers', params: transfer_high_amount, headers: valid_auth }
+      before { post '/transfers', headers: valid_auth, 
+        params: { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 99999 } } }
 
       it 'returns status code :unprocessable_entity' do
         expect(response).to have_http_status(:unprocessable_entity)
@@ -80,7 +80,21 @@ RSpec.describe "/transfers", type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match(/source acount doesn't have enough/)
+          .to match(/source acount doesn't have enough balance/)
+      end
+    end
+
+    context 'when the request is valid but source_account_id is equals to destination_account_id' do
+      before { post '/transfers', headers: valid_auth, 
+        params: { transfer: { account_id: source_account.id, destination_account_id: source_account.id, amount: 1000 } } }
+
+      it 'returns status code :unprocessable_entity' do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns a validation failure message' do
+        expect(response.body)
+          .to match(/source account and destination account must be different/)
       end
     end
 
