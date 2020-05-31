@@ -1,5 +1,8 @@
 class TransfersController < ApplicationController
+  include ActionController::HttpAuthentication::Token::ControllerMethods
+
   before_action :set_transfer, only: [:show, :destroy]
+  before_action :authenticate, only: [:create]
 
   # GET /transfers
   def index
@@ -27,6 +30,23 @@ class TransfersController < ApplicationController
   # DELETE /transfers/1
   def destroy
     @transfer.destroy
+  end
+
+  protected
+
+  def authenticate
+    authenticate_token || render_unauthorized
+  end
+
+  def authenticate_token
+    authenticate_with_http_token do |token, options|
+      @current_user = Account.find_by(id: params[:transfer][:account_id], access_token: token)
+    end
+  end
+
+  def render_unauthorized(realm = "Application")
+    self.headers["WWW-Authenticate"] = %(Token realm="#{realm}")
+    render json: {error: "Bad credentials"}, status: :unauthorized
   end
 
   private

@@ -2,7 +2,7 @@ require 'rails_helper'
 RSpec.describe "/transfers", type: :request do
   let(:source_account) { create(:account) }
   let(:destination_account) { create(:account) }
-  let!(:transfers) { create_list(:transfer, 10, destination_account_id: destination_account.id) }
+  let!(:transfers) { create_list(:transfer, 10, account: source_account, destination_account_id: destination_account.id) }
   let(:transfer_id) { transfers.first.id }
 
   # Test suite for GET /transfers
@@ -53,9 +53,11 @@ RSpec.describe "/transfers", type: :request do
   describe 'POST /transfers' do
     # valid payload
     let(:valid_attributes) { { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 10000 } } }
+    let(:valid_auth) { { authorization: "Token token=#{source_account.access_token}" } }
+    let(:invalid_auth) { { authorization: "Token token=invalid_auth" } }
 
     context 'when the request is valid' do
-      before { post '/transfers', params: valid_attributes }
+      before { post '/transfers', params: valid_attributes, headers: valid_auth }
 
       it 'creates a transfer' do
         expect(json['account']['id']).to eq(source_account.id)
@@ -68,8 +70,37 @@ RSpec.describe "/transfers", type: :request do
       end
     end
 
+    context 'when the request is invalid - valid authorization but without source_account id' do
+      before { post '/transfers', headers: valid_auth,
+        params: { transfer: { destination_account_id: destination_account.id, amount: 10000 } } }
+
+      it 'returns status code :unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns a validation failure message' do
+        expect(response.body)
+          .to match("{\"error\":\"Bad credentials\"}")
+      end
+    end
+
+    context 'when the request is invalid - valid transfer invalid auth' do
+      before { post '/transfers', headers: invalid_auth,
+        params: valid_attributes }
+
+      it 'returns status code :unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns a validation failure message' do
+        expect(response.body)
+          .to match("{\"error\":\"Bad credentials\"}")
+      end
+    end
+
     context 'when the request is invalid - amount blank' do
-      before { post '/transfers', params: { transfer: { account_id: source_account.id, destination_account_id: destination_account.id } } }
+      before { post '/transfers', headers: valid_auth,
+        params: { transfer: { account_id: source_account.id, destination_account_id: destination_account.id } } }
 
       it 'returns status code :unprocessable_entity' do
         expect(response).to have_http_status(:unprocessable_entity)
@@ -81,21 +112,9 @@ RSpec.describe "/transfers", type: :request do
       end
     end
 
-    context 'when the request is invalid - source_account_id blank' do
-      before { post '/transfers', params: { transfer: { destination_account_id: destination_account.id, amount: 10000 } } }
-
-      it 'returns status code :unprocessable_entity' do
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'returns a validation failure message' do
-        expect(response.body)
-          .to match("{\"account\":[\"must exist\"]}")
-      end
-    end
-
     context 'when the request is invalid - destination_account_id blank (should not find an account' do
-      before { post '/transfers', params: { transfer: { account_id: source_account.id, amount: 10000 } } }
+      before { post '/transfers', headers: valid_auth, 
+        params: { transfer: { account_id: source_account.id, amount: 10000 } } }
 
       it 'returns status code :unprocessable_entity' do
         expect(response).to have_http_status(:unprocessable_entity)
