@@ -53,6 +53,7 @@ RSpec.describe "/transfers", type: :request do
   describe 'POST /transfers' do
     # valid payload
     let(:valid_attributes) { { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 10000 } } }
+    let(:transfer_high_amount) { { transfer: { account_id: source_account.id, destination_account_id: destination_account.id, amount: 99999 } } }
     let(:valid_auth) { { authorization: "Token token=#{source_account.access_token}" } }
     let(:invalid_auth) { { authorization: "Token token=invalid_auth" } }
 
@@ -70,6 +71,19 @@ RSpec.describe "/transfers", type: :request do
       end
     end
 
+    context 'when the request is valid but source account does not have enough balance' do
+      before { post '/transfers', params: transfer_high_amount, headers: valid_auth }
+
+      it 'returns status code :unprocessable_entity' do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns a validation failure message' do
+        expect(response.body)
+          .to match(/source acount doesn't have enough/)
+      end
+    end
+
     context 'when the request is invalid - valid authorization but without source_account id' do
       before { post '/transfers', headers: valid_auth,
         params: { transfer: { destination_account_id: destination_account.id, amount: 10000 } } }
@@ -80,7 +94,7 @@ RSpec.describe "/transfers", type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match("{\"error\":\"Bad credentials\"}")
+          .to match(/Bad credentials/)
       end
     end
 
@@ -94,7 +108,7 @@ RSpec.describe "/transfers", type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match("{\"error\":\"Bad credentials\"}")
+          .to match(/Bad credentials/)
       end
     end
 

@@ -3,4 +3,6 @@ class Transfer < ApplicationRecord
   belongs_to :account
 
   validates_with DestinationAccountExistsValidator
+  validates_with SourceAccountHasBalanceValidation
+  
 end
