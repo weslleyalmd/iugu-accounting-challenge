@@ -60,7 +60,7 @@ RSpec.describe "/transfers", type: :request do
       before { post '/transfers', params: valid_attributes, headers: valid_auth }
 
       it 'creates a transfer' do
-        expect(json['account']['id']).to eq(source_account.id)
+        expect(json['source_account_id']).to eq(source_account.id)
         expect(json['destination_account_id']).to eq(destination_account.id)
         expect(json['amount']).to eq(10000)
       end

@@ -1,4 +1,7 @@
 class TransferSerializer < ActiveModel::Serializer
-  attributes :id, :destination_account_id, :amount
-  has_one :account
+  attributes :id, :source_account_id, :destination_account_id, :amount
+  
+  def source_account_id
+    object.account_id
+  end
 end
