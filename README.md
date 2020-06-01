@@ -1,5 +1,80 @@
 # Desafio - Sistema de Contas bancárias
 
+## Como executar o projeto
+1. Baixar o código desse repositório
+2. Executar o bundle install na raiz do projeto
+3. Executar 'rails s'
+
+## API endpoints (Exemplos de curls)
+
+### Contas
+1. Criar contas: URL: http://localhost:3000/accounts/ - Method: POST
+```shell
+curl -X POST \
+  http://localhost:3000/accounts/ \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+  "id" : 1, # Parâmetro opcinal
+	"name" : "Conta 1",
+	"balance": 1000 # Saldo em centavos
+}'
+```
+Resposta:
+```
+{
+    "id": 1,
+    "access_token": "mid6v4gogpmylix16fim" # token gerado pela aplicação
+}
+```
+2. Consultar saldo de uma conta: URL: http://localhost:3000/accounts/{account_id} - Method: GET
+```shell
+curl -X GET \
+  http://localhost:3000/accounts/1 \
+  -H 'cache-control: no-cache' \
+```
+Resposta:
+```
+{
+    "id": 1,
+    "name": "Conta 1",
+    "balance": 1000
+}
+```
+### Transferência
+1. Criar transferência: URL: http://localhost:3000/transfers/ - Method - POST
+```shell
+curl -X POST \
+  http://localhost:3000/transfers/ \
+  -H 'authorization: Token token=mid6v4gogpmylix16fim' \ # TOKEN DA CONTA DE ORIGEM
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+  "account_id": 1, # ID da conta de origem
+  "destination_account_id": 2, # ID da conta de destino
+  "amount": 100 # Valor, em centavos, da transfrência
+}'
+```
+Resposta:
+```
+{
+  "account_id": 1,
+  "destination_account_id": 2, 
+  "amount": 100
+}
+```
+2. Consultar transferências: URL: http://localhost:3000/transfers/ - Method - GET
+```shell
+[
+    {
+        "id": 1,
+        "source_account_id": 1,
+        "destination_account_id": 2,
+        "amount": 100
+    }
+]
+```
+
 ## Objetivo
 
 Desenvolver um sistema que irá gerenciar contas bancárias de clientes, permitindo fazer transferências de um cliente para outro e expor o saldo atual da conta, sempre em reais.
