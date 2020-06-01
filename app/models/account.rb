@@ -6,6 +6,16 @@ class Account < ApplicationRecord
 
   before_validation :set_token, on: :create
 
+  def withdraw(value)
+    new_balance = balance - value
+    self.update(balance: new_balance)
+  end
+
+  def deposit(value)
+    new_balance = balance + value
+    self.update(balance: new_balance)
+  end
+
   private
 
   def set_token

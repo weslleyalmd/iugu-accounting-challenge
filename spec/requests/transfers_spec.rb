@@ -84,6 +84,30 @@ RSpec.describe "/transfers", type: :request do
       end
     end
 
+    context 'check that the balance has been updated' do
+      let(:s_account) {create(:account)}
+      let(:d_account) {create(:account)}
+
+      before { post '/transfers', headers: { authorization: "Token token=#{s_account.access_token}" },
+        params: { transfer: {account_id: s_account.id, destination_account_id: d_account.id, amount: 100} }}
+
+        it 'should withdraw transfer amount from source_account' do
+          ### Get updated source account
+          account = Account.find(s_account.id)
+
+          ### Balance should be s_account.balance - 100
+          expect(account.balance).to eq(s_account.balance - 100)
+        end
+
+        it 'should deposit transfer amount from destination_account' do
+          ### Get updated destination account
+          account = Account.find(d_account.id)
+
+          ### Balance should be d_account.balance + 100
+          expect(account.balance).to eq(d_account.balance + 100)
+        end
+    end
+
     context 'when the request is valid but source_account_id is equals to destination_account_id' do
       before { post '/transfers', headers: valid_auth, 
         params: { transfer: { account_id: source_account.id, destination_account_id: source_account.id, amount: 1000 } } }
