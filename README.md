@@ -38,7 +38,7 @@ Resposta:
 {
     "id": 1,
     "name": "Conta 1",
-    "balance": 1000
+    "balance": "R$ 10,00"
 }
 ```
 ### Transferência
