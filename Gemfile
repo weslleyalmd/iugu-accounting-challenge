@@ -33,8 +33,8 @@ group :development, :test do
   # Use RSpec for specs
   gem 'rspec-rails', '>= 3.5.0'
 
-  # Use Factory Girl for generating random test data
-  gem 'factory_girl_rails'
+  # Use Factory Bot for generating random test data
+  gem 'factory_bot_rails', '<= 4.10'
 
   gem 'shoulda-matchers', '~> 3.0', require: false
 end
@@ -45,6 +45,3 @@ group :development do
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
