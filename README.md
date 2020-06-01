@@ -15,7 +15,7 @@ curl -X POST \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/json' \
   -d '{
-  	"id" : 1, # Parâmetro opcinal
+  	"id" : 1, # Parâmetro opcional
 	"name" : "Conta 1",
 	"balance": 1000 # Saldo em centavos
 }'
