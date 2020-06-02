@@ -4,6 +4,6 @@ class CompleteAccountSerializer < ActiveModel::Serializer
   attributes :id, :name, :balance
 
   def balance
-    number_to_currency(object.balance / 100, :unit => "R$ ", :separator => ",", :delimiter => ".")
+    number_to_currency(object.balance.to_f / 100, :unit => "R$ ", :separator => ",", :delimiter => ".")
   end
 end
