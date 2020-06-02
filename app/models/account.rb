@@ -16,6 +16,10 @@ class Account < ApplicationRecord
     self.update(balance: new_balance)
   end
 
+  def has_balance?(value)
+    balance > value
+  end
+
   private
 
   def set_token
